@@ -374,7 +374,12 @@ logger.info("Using the following arguments for the target engine: \(jsShellArgum
 func makeFuzzer(with configuration: Configuration) -> Fuzzer {
     // A script runner to execute JavaScript code in an instrumented JS engine.
     let runner = REPRL(executable: jsShellPath, processArguments: jsShellArguments, processEnvironment: profile.processEnv, maxExecsBeforeRespawn: profile.maxExecsBeforeRespawn)
-    let sanRunner = REPRL(executable: sanBinary, processArguments: jsShellArguments, processEnvironment: profile.processEnv, maxExecsBeforeRespawn:  profile.maxExecsBeforeRespawn)
+    let sanRunner: REPRL?
+    if args.has("--san") {
+        sanRunner = REPRL(executable: sanBinary, processArguments: jsShellArguments, processEnvironment: profile.processEnv, maxExecsBeforeRespawn:  profile.maxExecsBeforeRespawn)
+    } else {
+        sanRunner = nil
+    }
 
     let engine: FuzzEngine
     switch engineName {
