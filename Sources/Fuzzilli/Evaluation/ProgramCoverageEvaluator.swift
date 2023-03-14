@@ -79,6 +79,10 @@ public class ProgramCoverageEvaluator: ComponentBase, ProgramEvaluator {
     /// Keep track of how often an edge has been reset. Frequently set/cleared edges will be ignored
     private var resetCounts : [UInt32:UInt64] = [:]
 
+    // Unique hash map
+    private var uniqHash : [UInt64:Bool] = [:]
+    private var maxHASH: UInt64 = (1<<25)
+
     /// How often an edge may be reset at most before it is considered non-deterministic.
     /// In that case, the edge is marked as found, but will not be considered an aspect of any program.
     private let maxResetCount : UInt64 = 1000
@@ -152,6 +156,17 @@ public class ProgramCoverageEvaluator: ComponentBase, ProgramEvaluator {
         let _ = fuzzer.execute(Program())
         libcoverage.cov_finish_initialization(&context, shouldTrackEdgeCounts ? 1 : 0)
         logger.info("Initialized, \(context.num_edges) edges")
+    }
+
+    public func shouldTrySan() -> Bool {
+        let result = libcoverage.cov_hash(&context) % maxHASH
+
+        if let _ = uniqHash[result] {
+            return true
+        } else {
+            uniqHash[result] = true
+            return false
+        }
     }
 
     public func evaluate(_ execution: Execution) -> ProgramAspects? {

@@ -200,6 +200,11 @@ static uint32_t internal_evaluate(struct cov_context* context, uint8_t* virgin_b
     return new_edges->count;
 }
 
+uint64_t cov_hash(struct cov_context* context)
+{
+    return XXH3_64bits(context->shmem->edges, context->bitmap_size);
+}
+
 int cov_evaluate(struct cov_context* context, struct edge_set* new_edges)
 {
     uint32_t num_new_edges = internal_evaluate(context, context->virgin_bits, new_edges);

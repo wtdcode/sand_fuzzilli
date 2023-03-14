@@ -161,6 +161,8 @@ public func makeMockFuzzer(engine maybeEngine: FuzzEngine? = nil, runner maybeRu
     // A script runner to execute JavaScript code in an instrumented JS engine.
     let runner = maybeRunner ?? MockScriptRunner()
 
+    let sanRunner = maybeRunner ?? MockScriptRunner()
+
     // the mutators to use for this fuzzing engine.
     let mutators = WeightedList<Mutator>([
         (CodeGenMutator(),                  1),
@@ -195,6 +197,7 @@ public func makeMockFuzzer(engine maybeEngine: FuzzEngine? = nil, runner maybeRu
 
     // Construct the fuzzer instance.
     let fuzzer = Fuzzer(configuration: configuration,
+                        sanRunner: sanRunner,
                         scriptRunner: runner,
                         engine: engine,
                         mutators: mutators,

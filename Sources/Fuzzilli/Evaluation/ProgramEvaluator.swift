@@ -45,4 +45,12 @@ public protocol ProgramEvaluator: Component {
 
     /// Resets the internal state
     func resetState()
+
+    func shouldTrySan() -> Bool
+}
+
+extension ProgramEvaluator {
+    func shouldTrySan() -> Bool {
+        return false
+    }
 }

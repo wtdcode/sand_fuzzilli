@@ -97,6 +97,7 @@ Options:
     --additionalArguments=args   : Pass additional arguments to the JS engine. If multiple arguments are passed, they should be separated by a comma.
     --tag=tag                    : Optional string tag associated with this instance which will be stored in the settings.json file as well as in crashing samples.
                                    This can for example be used to remember the target revision that is being fuzzed.
+    --san=san                    : Sanitizer binaries.
 """)
     exit(0)
 }
@@ -111,6 +112,12 @@ let jsShellPath = args[0]
 
 if !FileManager.default.fileExists(atPath: jsShellPath) {
     configError("Invalid JS shell path \"\(jsShellPath)\", file does not exist")
+}
+
+let sanBinary = args["--san"] ?? ""
+
+if args.has("--san") && !FileManager.default.fileExists(atPath: sanBinary) {
+    configError("Invalid SAN binary path \(sanBinary), file does not exist")
 }
 
 var profile: Profile! = nil
@@ -367,6 +374,7 @@ logger.info("Using the following arguments for the target engine: \(jsShellArgum
 func makeFuzzer(with configuration: Configuration) -> Fuzzer {
     // A script runner to execute JavaScript code in an instrumented JS engine.
     let runner = REPRL(executable: jsShellPath, processArguments: jsShellArguments, processEnvironment: profile.processEnv, maxExecsBeforeRespawn: profile.maxExecsBeforeRespawn)
+    let sanRunner = REPRL(executable: sanBinary, processArguments: jsShellArguments, processEnvironment: profile.processEnv, maxExecsBeforeRespawn:  profile.maxExecsBeforeRespawn)
 
     let engine: FuzzEngine
     switch engineName {
@@ -437,6 +445,7 @@ func makeFuzzer(with configuration: Configuration) -> Fuzzer {
 
     // Construct the fuzzer instance.
     return Fuzzer(configuration: configuration,
+                  sanRunner: sanRunner,
                   scriptRunner: runner,
                   engine: engine,
                   mutators: mutators,

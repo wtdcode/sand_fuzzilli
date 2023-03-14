@@ -21,6 +21,9 @@
 #include <Windows.h>
 #endif
 
+#define XXH_INLINE_ALL
+#include "xxhash.h"
+
 // Tracks a set of edges by their indices
 struct edge_set {
     uint32_t count;
@@ -79,6 +82,7 @@ int cov_initialize(struct cov_context*);
 void cov_finish_initialization(struct cov_context*, int should_track_edges);
 void cov_shutdown(struct cov_context*);
 
+uint64_t cov_hash(struct cov_context* context);
 int cov_evaluate(struct cov_context* context, struct edge_set* new_edges);
 int cov_evaluate_crash(struct cov_context*);
 

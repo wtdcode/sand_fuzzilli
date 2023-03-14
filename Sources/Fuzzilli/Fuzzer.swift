@@ -36,6 +36,9 @@ public class Fuzzer {
     /// The script runner used to execute generated scripts.
     public let runner: ScriptRunner
 
+    /// The runner to run sanitizer binaries
+    public let sanRunner: ScriptRunner
+
     /// The fuzzer engine producing new programs from existing ones and executing them.
     public let engine: FuzzEngine
 
@@ -162,7 +165,7 @@ public class Fuzzer {
 
     /// Constructs a new fuzzer instance with the provided components.
     public init(
-        configuration: Configuration, scriptRunner: ScriptRunner, engine: FuzzEngine, mutators: WeightedList<Mutator>,
+        configuration: Configuration, sanRunner: ScriptRunner, scriptRunner: ScriptRunner, engine: FuzzEngine, mutators: WeightedList<Mutator>,
         codeGenerators: WeightedList<CodeGenerator>, programTemplates: WeightedList<ProgramTemplate>, evaluator: ProgramEvaluator,
         environment: Environment, lifter: Lifter, corpus: Corpus, minimizer: Minimizer, queue: DispatchQueue? = nil
     ) {
@@ -182,6 +185,7 @@ public class Fuzzer {
         self.lifter = lifter
         self.corpus = corpus
         self.runner = scriptRunner
+        self.sanRunner = sanRunner
         self.minimizer = minimizer
         self.logger = Logger(withLabel: "Fuzzer")
 
@@ -466,6 +470,15 @@ public class Fuzzer {
         let execution = runner.run(script, withTimeout: timeout ?? config.timeout)
         dispatchEvent(events.PostExecute, data: execution)
 
+
+        if case .succeeded = execution.outcome {
+            let execution2 = sanRunner.run(script, withTimeout: timeout ?? config.timeout)
+
+            if case .crashed(_) = execution2.outcome {
+                return execution2
+            }
+
+        }
         return execution
     }
 
