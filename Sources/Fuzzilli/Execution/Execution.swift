@@ -50,4 +50,5 @@ public protocol Execution {
     var stderr: String { get }
     var fuzzout: String { get }
     var execTime: TimeInterval { get }
+    var args: String { get }
 }

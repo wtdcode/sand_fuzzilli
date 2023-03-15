@@ -22,6 +22,7 @@ struct MockExecution: Execution {
     let stderr: String
     let fuzzout: String
     let execTime: TimeInterval
+    let args: String
 }
 
 class MockScriptRunner: ScriptRunner {
@@ -32,7 +33,8 @@ class MockScriptRunner: ScriptRunner {
                              stdout: "",
                              stderr: "",
                              fuzzout: "",
-                             execTime: TimeInterval(0.1))
+                             execTime: TimeInterval(0.1),
+                             args: "")
     }
 
     func setEnvironmentVariable(_ key: String, to value: String) {}

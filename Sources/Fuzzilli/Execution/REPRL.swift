@@ -164,10 +164,12 @@ class REPRLExecution: Execution {
 
     var outcome = ExecutionOutcome.succeeded
     var execTime: TimeInterval = 0
+    var args: String
 
     init(from reprl: REPRL) {
         self.reprl = reprl
         self.execId = reprl.lastExecId
+        self.args = reprl.processArguments.joined(separator: " ")
     }
 
     // The output streams (stdout, stderr, fuzzout) can only be accessed before

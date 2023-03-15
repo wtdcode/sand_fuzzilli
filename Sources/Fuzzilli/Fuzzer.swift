@@ -239,7 +239,9 @@ public class Fuzzer {
 
         // Initialize the script runner first so we are able to execute programs.
         runner.initialize(with: self)
-
+        if let sanRunner = sanRunner {
+            sanRunner.initialize(with: self)
+        }
         // Then initialize all components.
         engine.initialize(with: self)
         evaluator.initialize(with: self)
@@ -384,7 +386,7 @@ public class Fuzzer {
         case .crashed(let termsig):
             // Here we explicitly deal with the possibility that an interesting sample
             // from another instance triggers a crash in this instance.
-            processCrash(program, withSignal: termsig, withStderr: execution.stderr, withStdout: execution.stdout, origin: origin, withExectime: execution.execTime)
+            processCrash(program, withArgs: execution.args, withSignal: termsig, withStderr: execution.stderr, withStdout: execution.stdout, origin: origin, withExectime: execution.execTime)
 
         case .succeeded:
             var imported = false
@@ -414,8 +416,8 @@ public class Fuzzer {
 
         let execution = execute(program)
         if case .crashed(let termsig) = execution.outcome {
-            processCrash(program, withSignal: termsig, withStderr: execution.stderr, withStdout: execution.stdout, origin: origin, withExectime: execution.execTime)
-        } else {
+            processCrash(program, withArgs: execution.args, withSignal: termsig, withStderr: execution.stderr, withStdout: execution.stdout, origin: origin, withExectime: execution.execTime)
+        } else {    
             // Non-deterministic crash
             dispatchEvent(events.CrashFound, data: (program, behaviour: .flaky, isUnique: true, origin: origin))
         }
@@ -472,9 +474,15 @@ public class Fuzzer {
 
         if let sanRunner = sanRunner {
             if case .succeeded = execution.outcome {
+                logger.info("Try sanitizers...")
                 let execution2 = sanRunner.run(script, withTimeout: timeout ?? config.timeout)
+                
+                if case .failed(_) = execution2.outcome {
+                    logger.warning("Sanitizer gives failure \(execution2.outcome)! Please check it!")
+                }
 
                 if case .crashed(_) = execution2.outcome {
+                    logger.info("Sanitizer gives \(execution2.outcome)!")
                     return execution2
                 }
             }
@@ -552,7 +560,7 @@ public class Fuzzer {
     }
 
     /// Process a program that causes a crash.
-    func processCrash(_ program: Program, withSignal termsig: Int, withStderr stderr: String, withStdout stdout: String, origin: ProgramOrigin, withExectime exectime: TimeInterval) {
+    func processCrash(_ program: Program, withArgs args: String, withSignal termsig: Int, withStderr stderr: String, withStdout stdout: String, origin: ProgramOrigin, withExectime exectime: TimeInterval) {
         func processCommon(_ program: Program) {
             let hasCrashInfo = program.comments.at(.footer)?.contains("CRASH INFO") ?? false
             if !hasCrashInfo {
@@ -566,7 +574,7 @@ public class Fuzzer {
                 program.comments.add(stderr.trimmingCharacters(in: .newlines), at: .footer)
                 program.comments.add("STDOUT:", at: .footer)
                 program.comments.add(stdout.trimmingCharacters(in: .newlines), at: .footer)
-                program.comments.add("ARGS: \(runner.processArguments.joined(separator: " "))", at: .footer)
+                program.comments.add("ARGS: \(args)", at: .footer)
                 program.comments.add("EXECUTION TIME: \(Int(exectime * 1000))ms", at: .footer)
             }
             assert(program.comments.at(.footer)?.contains("CRASH INFO") ?? false)
