@@ -79,6 +79,7 @@ let spidermonkeyProfile = Profile(
     timeout: 250,
 
     codePrefix: """
+                this.crash = function() {}; // Remove the intentional crash
                 """,
 
     codeSuffix: """
