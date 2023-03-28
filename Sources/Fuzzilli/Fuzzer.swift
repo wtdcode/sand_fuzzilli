@@ -474,16 +474,18 @@ public class Fuzzer {
 
         if let sanRunner = sanRunner {
             if case .succeeded = execution.outcome {
-                logger.info("Try sanitizers...")
-                let execution2 = sanRunner.run(script, withTimeout: timeout ?? config.timeout)
-                
-                if case .failed(_) = execution2.outcome {
-                    logger.warning("Sanitizer gives failure \(execution2.outcome)! Please check it!")
-                }
+                if evaluator.shouldTrySan() {
+                    logger.info("Try sanitizers...")
+                    let execution2 = sanRunner.run(script, withTimeout: timeout ?? config.timeout)
+                    
+                    if case .failed(_) = execution2.outcome {
+                        logger.warning("Sanitizer gives failure \(execution2.outcome)! Please check it!")
+                    }
 
-                if case .crashed(_) = execution2.outcome {
-                    logger.info("Sanitizer gives \(execution2.outcome)!")
-                    return execution2
+                    if case .crashed(_) = execution2.outcome {
+                        logger.info("Sanitizer gives \(execution2.outcome)!")
+                        return execution2
+                    }
                 }
             }
         }
