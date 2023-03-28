@@ -70,6 +70,9 @@ public class Events {
     /// Signals that a program was executed.
     public let PostExecute = Event<Execution>()
 
+    /// Signals that a program was executed with sanitizers.
+    public let SanExecute = Event<Execution>()
+
     /// In distributed fuzzing, signals that this child node has synchronized with its parent node.
     /// This event is guaranteed to be dispatched at most once, but may not be dispatched at
     /// all, for example if this node is configured to use its own corpus and so does not synchronize

@@ -162,10 +162,10 @@ public class ProgramCoverageEvaluator: ComponentBase, ProgramEvaluator {
         let result = libcoverage.cov_hash(&context) % maxHASH
 
         if let _ = uniqHash[result] {
-            return true
+            return false
         } else {
             uniqHash[result] = true
-            return false
+            return true
         }
     }
 

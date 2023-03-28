@@ -477,7 +477,8 @@ public class Fuzzer {
                 if evaluator.shouldTrySan() {
                     logger.info("Try sanitizers...")
                     let execution2 = sanRunner.run(script, withTimeout: timeout ?? config.timeout)
-                    
+                    dispatchEvent(events.SanExecute, data: execution2)
+
                     if case .failed(_) = execution2.outcome {
                         logger.warning("Sanitizer gives failure \(execution2.outcome)! Please check it!")
                     }

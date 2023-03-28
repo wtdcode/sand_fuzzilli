@@ -23,6 +23,7 @@ public class Statistics: Module {
 
     /// Data required to compute executions per second.
     private var currentExecs = 0.0
+    private var sanExecs = 0.0
     private var lastEpsUpdate = Date()
     private var lastExecsPerSecond = 0.0
 
@@ -148,7 +149,12 @@ public class Statistics: Module {
             self.lastExecDate = now
 
             let overhead = 1.0 - (exec.execTime / totalTime)
+         
             self.overheadAvg.add(overhead)
+        }
+        fuzzer.registerEventListener(for: fuzzer.events.SanExecute) {exec in 
+            self.ownData.totalSanExecs += 1
+            self.sanExecs += 1
         }
         fuzzer.registerEventListener(for: fuzzer.events.InterestingProgramFound) { ev in
             self.ownData.interestingSamples += 1

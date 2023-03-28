@@ -90,6 +90,9 @@ public struct Fuzzilli_Protobuf_Statistics {
   //// The total number of program executions.
   public var totalExecs: UInt64 = 0
 
+  /// The total number of san executions
+  public var totalSanExecs: UInt64 = 0
+
   //// The average size of the corpus of this node and its child nodes.
   public var avgCorpusSize: Double = 0
 

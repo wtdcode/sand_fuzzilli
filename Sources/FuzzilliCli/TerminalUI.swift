@@ -125,6 +125,12 @@ class TerminalUI {
         } else {
             print("Fuzzer Statistics")
         }
+
+        var ratio = 0.0;
+        if stats.totalExecs != 0 {
+            ratio = Double(stats.totalSanExecs) / Double(stats.totalExecs)
+        }
+
         print("""
         -----------------
         Fuzzer state:                 \(state)
@@ -146,6 +152,8 @@ class TerminalUI {
         Execs / Second:               \(String(format: "%.2f", stats.execsPerSecond))
         Fuzzer Overhead:              \(String(format: "%.2f", stats.fuzzerOverhead * 100))%
         Total Execs:                  \(stats.totalExecs)
+        Sanitizer Execs:              \(stats.totalSanExecs)
+        Exec Ratio:                   \(ratio)
         """)
     }
 
