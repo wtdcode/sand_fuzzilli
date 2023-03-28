@@ -68,7 +68,11 @@ let spidermonkeyProfile = Profile(
         return args
     },
 
-    processEnv: ["UBSAN_OPTIONS": "handle_segv=0"],
+    processEnv: [
+        "UBSAN_OPTIONS": "halt_on_error=1:abort_on_error=1:malloc_context_size=0:allocator_may_return_null=1:symbolize=0:handle_segv=0:handle_sigbus=0:handle_abort=0:handle_sigfpe=0:handle_sigill=0",
+        "ASAN_OPTIONS": "abort_on_error=1:detect_leaks=0:malloc_context_size=0:symbolize=0:allocator_may_return_null=1:detect_odr_violation=0:handle_segv=0:handle_sigbus=0:handle_abort=0:handle_sigfpe=0:handle_sigill=0",
+        "MSAN_OPTIONS": "exit_code=86:symbolize=0:abort_on_error=1:malloc_context_size=0:allocator_may_return_null=1:msan_track_origins=0:handle_segv=0:handle_sigbus=0:handle_abort=0:handle_sigfpe=0:handle_sigill=0"
+    ],
 
     maxExecsBeforeRespawn: 1000,
 
